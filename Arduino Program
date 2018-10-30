@@ -1,0 +1,94 @@
+int pushbutton = 2; // pin number of the pushbutton
+int buttonState = 0; // estate of the pushbutton
+int x = 0; // number of users
+unsigned long t = 0; // counter of the time
+int Dt = 10000; // limit of the time
+int pos = 0; // position of the servo
+int indice = 0; //random of the number of the players
+int led1 = 13; // pin number of the blue led
+int led2 = 12; // pin number of the green led
+int led3 = 11; // pin number of the red led
+int led4 = 10; // pin number of the orange led
+int led5 = 9; // pin number of the yellow led
+int numberrandom = 0; // index of the random of the led
+int ledrandom; // random of the led
+
+#include <Servo.h>
+
+Servo myservo; // declare the servo
+
+void setup() {
+
+  pinMode(13, OUTPUT); // declare each led as a output
+  pinMode(12, OUTPUT);
+  pinMode(11, OUTPUT);
+  pinMode(10, OUTPUT);
+  pinMode(9, OUTPUT);
+
+  pinMode(2, INPUT); // declare the pushbutton as a input
+  
+  randomSeed(analogRead(0));
+
+  myservo.attach(6); // Servo's pin
+
+  Serial.begin (9600);
+
+  Serial.println ("Enter users!"); // used to give instructions to the players
+
+  int lastState = LOW;
+  t = millis ();
+  while (millis() - t < Dt) { // while the time is less than 10s
+   
+    buttonState = digitalRead(pushbutton); // read the estate of the pushbutton
+
+    if (buttonState == LOW && lastState == HIGH) { // if the pushbutton is prest once
+      x = x + 1; // add a user
+      x = constrain (x, 0, 6); //the game has a limit of 6 players
+      Serial.print("You have "); // used to give instructions to the players
+      Serial.print(x); // used to give instructions to the players also x it's the summary of the players
+      Serial.println (" users"); // used to give instructions to the players
+
+    }
+    lastState = buttonState;
+  }
+
+  Serial.print("YOU ARE "); // shows the number of the players result
+  Serial.print (x); // prints the final number of players
+  Serial.println (" USERS!!!");
+
+}
+
+void loop() {
+  buttonState = digitalRead(pushbutton); // read the estate of the pushbutton
+  pos = (180 / (x - 1)); //used to declare the position of the servo
+  if (buttonState == LOW) { // if the pushbutton is prest once
+    indice = random(x); // random of the number of the players
+    pos = pos * indice; //used to declare the position of the servo
+    myservo.write(pos); //move the servo
+    pos = constrain(pos, 0, 180); //limit of the range of the servo's position
+    delay(1000); //delay of 1s
+
+    numberrandom = random (5) + 9; // random of the led
+    digitalWrite(numberrandom, HIGH); // turn on the random led
+
+    if (numberrandom == 9) { // when the yellow led is on
+      Serial.println("Tell us a secret"); // used to give instructions to the players
+    }
+    if (numberrandom == 10) { // when the orange led is on
+      Serial.println("Drink a shot"); // used to give instructions to the players
+    }
+    if (numberrandom == 11) { // when the red led is on
+      Serial.println("Answer a question"); // used to give instructions to the players
+    }
+    if (numberrandom == 12) { // when the green led is on
+      Serial.println("Drink 2 shots"); // used to give instructions to the players
+    }
+    if (numberrandom == 13) { // when the blue led is on
+      Serial.println("Take off a piece of your clothes"); // used to give instructions to the players
+    }
+    delay(5000); //delay of 5s
+  }
+  else {
+    digitalWrite(numberrandom, LOW); // turn off the leds
+  }
+}
